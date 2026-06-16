@@ -3,327 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Cup Tournament Dashboard</title>
+    <title>Pro Football Tournament Hub</title>
     <style>
         :root {
-            --primary: #8a1538; /* Classic tournament maroon */
-            --secondary: #111827;
-            --bg: #f3f4f6;
-            --card-bg: #ffffff;
-            --accent: #10b981; /* Live green */
+            --bg-main: #0f172a;       /* Deep slate/navy dark mode */
+            --bg-card: #1e293b;       /* Lighter slate for cards */
+            --accent-live: #22c55e;   /* Vibrant live match green */
+            --accent-text: #38bdf8;   /* Electric blue for highlights */
+            --text-main: #f8fafc;     /* Clean white text */
+            --text-muted: #94a3b8;    /* Soft gray for subtext */
+            --border: #334155;        /* Subtle divider lines */
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            color: var(--secondary);
+            line-height: 1.5;
         }
 
+        /* Premium Minimalist Header */
         header {
-            background-color: var(--primary);
-            color: white;
-            padding: 20px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 24px 20px;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        h1 { margin: 0; font-size: 24px; }
-        
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+        header h1 {
+            margin: 0;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
-        }
-
-        .section-title {
-            font-size: 18px;
+        header p {
+            margin: 6px 0 0 0;
+            font-size: 14px;
+            color: var(--accent-text);
             font-weight: 600;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary);
-            padding-left: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Layout Grid */
+        .container {
+            max-width: 1300px;
+            margin: 40px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 32px;
+        }
+
+        @media (max-width: 968px) {
+            .container { grid-template-columns: 1fr; margin: 20px auto; }
+        }
+
+        .column-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         /* Match Cards */
         .match-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 1px solid #e5e7eb;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            overflow: hidden;
         }
 
         .match-card:hover {
+            border-color: var(--accent-text);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.5);
         }
 
-        .match-header {
+        .match-card.active-selection {
+            border-color: var(--accent-text);
+            background: linear-gradient(90deg, #1e293b 0%, #172554 100%);
+        }
+
+        .match-meta {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 10px;
-        }
-
-        .live-badge {
-            background-color: var(--accent);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            animation: blink 1.5s infinite;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .match-body {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .team {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 40%;
-        }
-
-        .team-name { font-weight: 600; font-size: 16px; margin-top: 5px; text-align: center;}
-
-        .score-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 20%;
-        }
-
-        .score {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 5px;
-        }
-
-        .time-elapsed {
-            font-size: 12px;
-            color: var(--accent);
             font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 18px;
         }
 
-        /* Standings Table */
-        .standings-box {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border: 1px solid #e5e7eb;
-            height: fit-content;
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--accent-live);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-live);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.4; }
+            100% { transform: scale(0.9); opacity: 1; }
+        }
+
+        .match-grid {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            text-align: center;
+        }
+
+        .team-display {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        .team-left { text-align: left; }
+        .team-right { text-align: right; }
+
+        .score-display {
+            padding: 0 20px;
+        }
+
+        .score-numbers {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .match-time {
+            font-size: 12px;
+            color: var(--accent-live);
+            font-weight: 700;
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .scheduled-time {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+            background: #0f172a;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+
+        /* Standings Side Panel */
+        .panel-box {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+        }
+
+        .panel-header-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            letter-spacing: -0.3px;
+            color: var(--accent-text);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
             font-size: 14px;
         }
 
         th {
-            background-color: #f9fafb;
-            color: #4b5563;
-            text-align: left;
-            padding: 10px;
+            color: var(--text-muted);
             font-weight: 600;
-            border-bottom: 2px solid #e5e7eb;
+            text-align: left;
+            padding: 10px 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
         }
 
         td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 14px 8px;
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
         }
 
-        tr.highlight-team {
-            background-color: #fef2f2;
-            font-weight: bold;
+        .row-highlight {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.08) 0%, transparent 100%);
+            font-weight: 600;
         }
 
-        .txt-center { text-align: center; }
+        .row-highlight td:first-child {
+            color: var(--accent-text);
+        }
+
+        .center-col { text-align: center; }
+        .right-col { text-align: right; }
+        .muted-num { color: var(--text-muted); font-weight: 400; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🏆 International Championship Dashboard</h1>
+        <h1>Tournament Intelligence</h1>
+        <p>Live Match Center</p>
     </header>
 
     <div class="container">
         <div>
-            <div class="section-title">Today's Fixtures (Click card to view Group)</div>
-            <div id="matches-container">
-                </div>
+            <div class="column-title">⚡ Today's Live Schedules</div>
+            <div id="matches-list"></div>
         </div>
 
         <div>
-            <div class="section-title">Live Group Standings</div>
-            <div class="standings-box">
-                <h3 id="group-title">Select a match to view standings</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Pos</th>
-                            <th>Team</th>
-                            <th class="txt-center">P</th>
-                            <th class="txt-center">GD</th>
-                            <th class="txt-center">Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody id="standings-body">
-                        <tr>
-                            <td colspan="5" style="text-align: center; color: #9ca3af;">No group selected</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Simulated Tournament Data API Feed
-        const matchesData = [
-            {
-                id: 101,
-                group: "Group A",
-                teamA: "Czech Republic",
-                teamB: "South Africa",
-                scoreA: 2,
-                scoreB: 1,
-                status: "LIVE",
-                minute: "64'",
-                standings: [
-                    { pos: 1, name: "Czech Republic", p: 2, gd: "+2", pts: 6 },
-                    { pos: 2, name: "Mexico", p: 1, gd: "+1", pts: 3 },
-                    { pos: 3, name: "South Africa", p: 2, gd: "-1", pts: 0 },
-                    { pos: 4, name: "Korea Republic", p: 1, gd: "-2", pts: 0 }
-                ]
-            },
-            {
-                id: 102,
-                group: "Group B",
-                teamA: "Canada",
-                teamB: "Switzerland",
-                scoreA: 0,
-                scoreB: 0,
-                status: "LIVE",
-                minute: "12'",
-                standings: [
-                    { pos: 1, name: "Switzerland", p: 1, gd: "0", pts: 1 },
-                    { pos: 2, name: "Canada", p: 1, gd: "0", pts: 1 },
-                    { pos: 3, name: "Bosnia & Herz.", p: 0, gd: "0", pts: 0 },
-                    { pos: 4, name: "Qatar", p: 0, gd: "0", pts: 0 }
-                ]
-            },
-            {
-                id: 103,
-                group: "Group C",
-                teamA: "Brazil",
-                teamB: "Morocco",
-                scoreA: 0,
-                scoreB: 0,
-                status: "19:00",
-                minute: "UPCOMING",
-                standings: [
-                    { pos: 1, name: "Brazil", p: 0, gd: "0", pts: 0 },
-                    { pos: 2, name: "Morocco", p: 0, gd: "0", pts: 0 },
-                    { pos: 3, name: "Scotland", p: 0, gd: "0", pts: 0 },
-                    { pos: 4, name: "Haiti", p: 0, gd: "0", pts: 0 }
-                ]
-            }
-        ];
-
-        // Function to render matches to the screen
-        function displayMatches() {
-            const container = document.getElementById('matches-container');
-            container.innerHTML = '';
-
-            matchesData.forEach(match => {
-                const isLive = match.status === 'LIVE';
-                const statusBlock = isLive ? `<span class="live-badge">LIVE</span>` : `<span>${match.status}</span>`;
-                const timeBlock = isLive ? `<span class="time-elapsed">${match.minute}</span>` : `<span style="color:#9ca3af; font-size:12px;">Scheduled</span>`;
-
-                const card = document.createElement('div');
-                card.className = 'match-card';
-                card.onclick = () => displayStandings(match.id);
-
-                card.innerHTML = `
-                    <div class="match-header">
-                        <span>${match.group}</span>
-                        ${statusBlock}
-                    </div>
-                    <div class="match-body">
-                        <div class="team">
-                            <span class="team-name">${match.teamA}</span>
-                        </div>
-                        <div class="score-center">
-                            <span class="score">${match.scoreA} - ${match.scoreB}</span>
-                            ${timeBlock}
-                        </div>
-                        <div class="team">
-                            <span class="team-name">${match.teamB}</span>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        // Function to update the right panel table when a match is clicked
-        function displayStandings(matchId) {
-            const match = matchesData.find(m => m.id === matchId);
-            if (!match) return;
-
-            // Update title
-            document.getElementById('group-title').innerText = `${match.group} Standings`;
-
-            // Update table body
-            const tbody = document.getElementById('standings-body');
-            tbody.innerHTML = '';
-
-            match.standings.forEach(row => {
-                const isPlayingNow = (row.name === match.teamA || row.name === match.teamB);
-                const trClass = isPlayingNow ? 'class="highlight-team"' : '';
-
-                tbody.innerHTML += `
-                    <tr ${trClass}>
-                        <td>${row.pos}</td>
-                        <td>${row.name} ${isPlayingNow ? '⏳' : ''}</td>
-                        <td class="txt-center">${row.p}</td>
-                        <td class="txt-center">${row.gd}</td>
-                        <td class="txt-center">${row.pts}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Initialize the app on load
-        displayMatches();
-        // Default to show the first group right away
-        displayStandings(101);
-    </script>
-</body>
-</html>
+            <div class="column-title">📊 Contextual Standings</div>
+            <div
