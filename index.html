@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Cup Tournament Dashboard</title>
+    <style>
+        :root {
+            --primary: #8a1538; /* Classic tournament maroon */
+            --secondary: #111827;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --accent: #10b981; /* Live green */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 0;
+            color: var(--secondary);
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; font-size: 24px; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+
+        /* Match Cards */
+        .match-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e5e7eb;
+            position: relative;
+        }
+
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .live-badge {
+            background-color: var(--accent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .match-body {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .team-name { font-weight: 600; font-size: 16px; margin-top: 5px; text-align: center;}
+
+        .score-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 20%;
+        }
+
+        .score {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 5px;
+        }
+
+        .time-elapsed {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Standings Table */
+        .standings-box {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+            height: fit-content;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        th {
+            background-color: #f9fafb;
+            color: #4b5563;
+            text-align: left;
+            padding: 10px;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        tr.highlight-team {
+            background-color: #fef2f2;
+            font-weight: bold;
+        }
+
+        .txt-center { text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏆 International Championship Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <div>
+            <div class="section-title">Today's Fixtures (Click card to view Group)</div>
+            <div id="matches-container">
+                </div>
+        </div>
+
+        <div>
+            <div class="section-title">Live Group Standings</div>
+            <div class="standings-box">
+                <h3 id="group-title">Select a match to view standings</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Team</th>
+                            <th class="txt-center">P</th>
+                            <th class="txt-center">GD</th>
+                            <th class="txt-center">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody id="standings-body">
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #9ca3af;">No group selected</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated Tournament Data API Feed
+        const matchesData = [
+            {
+                id: 101,
+                group: "Group A",
+                teamA: "Czech Republic",
+                teamB: "South Africa",
+                scoreA: 2,
+                scoreB: 1,
+                status: "LIVE",
+                minute: "64'",
+                standings: [
+                    { pos: 1, name: "Czech Republic", p: 2, gd: "+2", pts: 6 },
+                    { pos: 2, name: "Mexico", p: 1, gd: "+1", pts: 3 },
+                    { pos: 3, name: "South Africa", p: 2, gd: "-1", pts: 0 },
+                    { pos: 4, name: "Korea Republic", p: 1, gd: "-2", pts: 0 }
+                ]
+            },
+            {
+                id: 102,
+                group: "Group B",
+                teamA: "Canada",
+                teamB: "Switzerland",
+                scoreA: 0,
+                scoreB: 0,
+                status: "LIVE",
+                minute: "12'",
+                standings: [
+                    { pos: 1, name: "Switzerland", p: 1, gd: "0", pts: 1 },
+                    { pos: 2, name: "Canada", p: 1, gd: "0", pts: 1 },
+                    { pos: 3, name: "Bosnia & Herz.", p: 0, gd: "0", pts: 0 },
+                    { pos: 4, name: "Qatar", p: 0, gd: "0", pts: 0 }
+                ]
+            },
+            {
+                id: 103,
+                group: "Group C",
+                teamA: "Brazil",
+                teamB: "Morocco",
+                scoreA: 0,
+                scoreB: 0,
+                status: "19:00",
+                minute: "UPCOMING",
+                standings: [
+                    { pos: 1, name: "Brazil", p: 0, gd: "0", pts: 0 },
+                    { pos: 2, name: "Morocco", p: 0, gd: "0", pts: 0 },
+                    { pos: 3, name: "Scotland", p: 0, gd: "0", pts: 0 },
+                    { pos: 4, name: "Haiti", p: 0, gd: "0", pts: 0 }
+                ]
+            }
+        ];
+
+        // Function to render matches to the screen
+        function displayMatches() {
+            const container = document.getElementById('matches-container');
+            container.innerHTML = '';
+
+            matchesData.forEach(match => {
+                const isLive = match.status === 'LIVE';
+                const statusBlock = isLive ? `<span class="live-badge">LIVE</span>` : `<span>${match.status}</span>`;
+                const timeBlock = isLive ? `<span class="time-elapsed">${match.minute}</span>` : `<span style="color:#9ca3af; font-size:12px;">Scheduled</span>`;
+
+                const card = document.createElement('div');
+                card.className = 'match-card';
+                card.onclick = () => displayStandings(match.id);
+
+                card.innerHTML = `
+                    <div class="match-header">
+                        <span>${match.group}</span>
+                        ${statusBlock}
+                    </div>
+                    <div class="match-body">
+                        <div class="team">
+                            <span class="team-name">${match.teamA}</span>
+                        </div>
+                        <div class="score-center">
+                            <span class="score">${match.scoreA} - ${match.scoreB}</span>
+                            ${timeBlock}
+                        </div>
+                        <div class="team">
+                            <span class="team-name">${match.teamB}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Function to update the right panel table when a match is clicked
+        function displayStandings(matchId) {
+            const match = matchesData.find(m => m.id === matchId);
+            if (!match) return;
+
+            // Update title
+            document.getElementById('group-title').innerText = `${match.group} Standings`;
+
+            // Update table body
+            const tbody = document.getElementById('standings-body');
+            tbody.innerHTML = '';
+
+            match.standings.forEach(row => {
+                const isPlayingNow = (row.name === match.teamA || row.name === match.teamB);
+                const trClass = isPlayingNow ? 'class="highlight-team"' : '';
+
+                tbody.innerHTML += `
+                    <tr ${trClass}>
+                        <td>${row.pos}</td>
+                        <td>${row.name} ${isPlayingNow ? '⏳' : ''}</td>
+                        <td class="txt-center">${row.p}</td>
+                        <td class="txt-center">${row.gd}</td>
+                        <td class="txt-center">${row.pts}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Initialize the app on load
+        displayMatches();
+        // Default to show the first group right away
+        displayStandings(101);
+    </script>
+</body>
+</html>
